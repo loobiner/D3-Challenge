@@ -14,6 +14,8 @@ var margin = {
 var height = svgHeight - margin.top - margin.bottom;
 var width = svgWidth - margin.left - margin.right;
 
+//create an svg wrapper, append an svg group that will
+//hold the chart and shift latter by left and top margins.
 var svg = d3
     .select(".chart")
     .append("svg")
@@ -28,16 +30,30 @@ var chartGroup = svg.append("g")
 var chosenXAxis = "poverty";
 
 //function for updating x-scale variable when clicking x-axis label
-function xScale(data, chosenXAxis) {
-    //create scales
-   var xLinearScale = d3.scaleLinear()
-     .domain([d3.min(data, d => d[chosenXAxis]) * 0.8,
-        d3.max(data, () =>[chosenXAxis * 1.2])
-    ])
-    .range([0,width]);
+// function xScale(data, chosenXAxis) {
+//     //create scales
+//    var xLinearScale = d3.scaleLinear()
+//      .domain([d3.min(data, d => d[chosenXAxis]) * 0.8,
+//         d3.max(data, () =>[chosenXAxis * 1.2])
+//     ])
+//     .range([0,width]);
 
-  return xLinearScale;
-}
+//   return xLinearScale;
+// }
+
+
+var xScale = d3
+    .scaleLinear()
+    .domain([xMin, xMax])
+    .range([margin + lableArea, width - margin]);
+
+var yScale = d3
+    .scaleLinear()
+    .domain([yMin, yMax])
+    .range([height - margin - lableArea, margin])
+
+var xAxis = d3.axisBottom(xScale);
+var yAxis = d3. axisLeft(yScale);
 
 // function for updating xAxis variable when clicking xAxis label
 function renderAxes(newXScale, xAxis) {
@@ -91,7 +107,7 @@ return circlesGroup;
 }
 
 //retrieve data from csv and execute everything below
-d3.csv("data.csv").then(function(data, err) {
+d3.csv("assets/data/data.csv").then(function(data, err) {
     if (err) throw err;
 
     //parse data
@@ -137,9 +153,12 @@ var circlesGroup = chartGroup.selectAll("circle")
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
-    .attr("cy", d => yLinearScale(d.age))
+    .attr("cy", d => yLinearScale(d.poverty))
+    circlesGroup.append("text").text(function(d){
+        return data.abbr;
+    })
     .attr("r", 20)
-    .attr("fill", "pink")
+    .attr("fill", "green")
     .attr("opacity", ".5");
 
 //create group for all x-axis labels
